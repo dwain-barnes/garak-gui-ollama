@@ -39,10 +39,11 @@ Test your local Ollama models for security vulnerabilities including jailbreaks,
 
 2. **Setup (choose one method)**
 
-   python -m pip install -U git+https://github.com/NVIDIA/garak.git@main
+   
 
    **Option A: Using Conda** (Recommended)
    ```bash
+   python -m pip install -U git+https://github.com/NVIDIA/garak.git@main
    # Windows
    setup-conda.bat
    
