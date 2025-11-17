@@ -39,6 +39,8 @@ Test your local Ollama models for security vulnerabilities including jailbreaks,
 
 2. **Setup (choose one method)**
 
+   python -m pip install -U git+https://github.com/NVIDIA/garak.git@main
+
    **Option A: Using Conda** (Recommended)
    ```bash
    # Windows
@@ -59,17 +61,17 @@ Test your local Ollama models for security vulnerabilities including jailbreaks,
    ./setup.sh
    ```
 
-3. **Start Ollama**
+4. **Start Ollama**
    ```bash
    ollama serve
    ```
 
-4. **Pull a model** (if you haven't already)
+5. **Pull a model** (if you haven't already)
    ```bash
    ollama pull llama3.2
    ```
 
-5. **Start Garak GUI**
+6. **Start Garak GUI**
    ```bash
    # Windows (conda)
    start-conda.bat
@@ -80,7 +82,7 @@ Test your local Ollama models for security vulnerabilities including jailbreaks,
    # Or use start.bat / start.sh for venv
    ```
 
-6. **Open browser**
+7. **Open browser**
    ```
    http://localhost:8080
    ```
