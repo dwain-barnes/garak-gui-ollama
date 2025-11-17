@@ -1,53 +1,42 @@
 @echo off
 echo ========================================
-echo   Garak GUI - Conda Setup
+echo   Garak GUI - Setup (venv)
 echo ========================================
 echo.
 
-REM Check if conda is available
-where conda >nul 2>&1
+REM Check if Python is available
+python --version >nul 2>&1
 if errorlevel 1 (
-    echo ERROR: Conda not found. Please ensure Anaconda/Miniconda is installed
-    echo and added to PATH, or run this from Anaconda Prompt.
+    echo ERROR: Python not found. Please install Python 3.10 or higher.
     pause
     exit /b 1
 )
 
-echo [OK] Conda found
+echo [OK] Python found
 
-REM Check if garak environment exists
-conda env list | findstr /C:"garak" >nul 2>&1
-if errorlevel 1 (
-    echo.
-    echo Conda environment 'garak' not found.
-    echo Would you like to create it now? (This will install Python 3.10)
-    set /p CREATE="Create environment? (Y/N): "
-    if /i "%CREATE%"=="Y" (
-        echo Creating conda environment 'garak'...
-        conda create -n garak python=3.10 -y
-        if errorlevel 1 (
-            echo ERROR: Failed to create conda environment
-            pause
-            exit /b 1
-        )
-        echo [OK] Environment created
-    ) else (
-        echo Please create the environment manually with:
-        echo   conda create -n garak python=3.10
+REM Check if venv exists
+if exist venv\ (
+    echo [OK] Virtual environment already exists
+) else (
+    echo Creating virtual environment...
+    python -m venv venv
+    if errorlevel 1 (
+        echo ERROR: Failed to create virtual environment
         pause
         exit /b 1
     )
-) else (
-    echo [OK] Conda environment 'garak' already exists
+    echo [OK] Virtual environment created
 )
 
-REM Activate environment and install dependencies
+REM Activate virtual environment
 echo.
-echo Installing dependencies in 'garak' environment...
-call conda activate garak
+echo Activating virtual environment...
+call venv\Scripts\activate.bat
 
+REM Install dependencies
+echo.
+echo Installing dependencies...
 cd backend
-echo Installing Python packages...
 pip install -r requirements.txt
 if errorlevel 1 (
     echo ERROR: Failed to install dependencies
@@ -91,10 +80,8 @@ echo ========================================
 echo   Setup Complete!
 echo ========================================
 echo.
-echo Conda environment: garak
-echo.
 echo To start Garak GUI:
-echo   start-conda.bat
+echo   start.bat
 echo.
 echo Don't forget to:
 echo   1. Start Ollama: ollama serve
