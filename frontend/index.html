@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Garak GUI - LLM Security Scanner</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .scan-progress {
+            transition: width 0.3s ease;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3b82f6;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .probe-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .probe-card {
+            transition: all 0.2s ease;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                    <h1 class="text-2xl font-bold text-gray-900">Garak GUI</h1>
+                    <span class="text-sm text-gray-500">LLM Security Scanner</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div id="connectionStatus" class="flex items-center space-x-2">
+                        <div class="w-3 h-3 rounded-full bg-gray-400"></div>
+                        <span class="text-sm text-gray-600">Checking...</span>
+                    </div>
+                    <button onclick="showTab('scan')" class="px-4 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50 rounded-lg">
+                        New Scan
+                    </button>
+                    <button onclick="showTab('history')" class="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg">
+                        History
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Scan Tab -->
+        <div id="scanTab" class="tab-content">
+            <!-- Model Selection -->
+            <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4">1. Select Model</h2>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Available Ollama Models</label>
+                        <select id="modelSelect" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="">Loading models...</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Scan Description (Optional)</label>
+                        <input type="text" id="scanDescription" placeholder="e.g., Testing llama3 for prompt injection vulnerabilities" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Probe Selection -->
+            <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-semibold text-gray-900">2. Select Probes</h2>
+                    <div class="flex space-x-2">
+                        <button onclick="selectAllProbes()" class="text-sm text-blue-600 hover:text-blue-700 font-medium">Select All</button>
+                        <span class="text-gray-300">|</span>
+                        <button onclick="deselectAllProbes()" class="text-sm text-gray-600 hover:text-gray-700 font-medium">Clear All</button>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <input type="text" id="probeSearch" placeholder="Search probes..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+                <div id="probesList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-96 overflow-y-auto">
+                    <div class="text-center py-8 text-gray-500">Loading probes...</div>
+                </div>
+                <div class="mt-4 text-sm text-gray-600">
+                    <span id="probeCount">0</span> probe(s) selected
+                </div>
+            </div>
+
+            <!-- Detector Selection -->
+            <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-semibold text-gray-900">3. Select Detectors (Optional)</h2>
+                    <div class="flex space-x-2">
+                        <button onclick="selectAllDetectors()" class="text-sm text-blue-600 hover:text-blue-700 font-medium">Select All</button>
+                        <span class="text-gray-300">|</span>
+                        <button onclick="deselectAllDetectors()" class="text-sm text-gray-600 hover:text-gray-700 font-medium">Clear All</button>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <input type="text" id="detectorSearch" placeholder="Search detectors..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+                <div id="detectorsList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-96 overflow-y-auto">
+                    <div class="text-center py-8 text-gray-500">Loading detectors...</div>
+                </div>
+                <div class="mt-4 text-sm text-gray-600">
+                    <span id="detectorCount">0</span> detector(s) selected
+                </div>
+            </div>
+
+            <!-- Start Scan Button -->
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <button onclick="startScan()" id="startScanBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 flex items-center justify-center space-x-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>Start Scan</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- History Tab -->
+        <div id="historyTab" class="tab-content hidden">
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-lg font-semibold text-gray-900">Scan History</h2>
+                    <button onclick="loadHistory()" class="text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center space-x-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                        <span>Refresh</span>
+                    </button>
+                </div>
+                <div id="historyList">
+                    <div class="text-center py-12 text-gray-500">Loading scan history...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scan Progress Modal -->
+        <div id="scanProgressModal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 p-6">
+                <h3 class="text-xl font-semibold text-gray-900 mb-4">Scan in Progress</h3>
+                
+                <div class="mb-6">
+                    <div class="flex items-center justify-between mb-2">
+                        <span id="scanStatus" class="text-sm font-medium text-gray-700">Initializing...</span>
+                        <span id="scanProgress" class="text-sm font-medium text-blue-600">0%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-3">
+                        <div id="scanProgressBar" class="bg-blue-600 h-3 rounded-full scan-progress" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <div id="scanLogs" class="bg-gray-50 rounded-lg p-4 mb-4 max-h-64 overflow-y-auto font-mono text-xs">
+                    <div class="text-gray-600">Waiting for scan to start...</div>
+                </div>
+
+                <div class="flex justify-end">
+                    <button onclick="closeScanModal()" id="closeScanBtn" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>
