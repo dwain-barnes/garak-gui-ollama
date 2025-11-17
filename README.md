@@ -221,81 +221,21 @@ INFO: Received scan request for model: llama3.2
 INFO: Saved results for scan abc123...: /api/scans/.../report
 ```
 
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request. For major changes:
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
-
 ## 📝 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🙏 Acknowledgments
 
-- [Garak](https://github.com/leondz/garak) - The underlying LLM vulnerability scanner by Leon Derczynski
+- [Garak](https://github.com/NVIDIA/garak) - The underlying LLM vulnerability scanner
 - [Ollama](https://ollama.ai/) - Local LLM runtime
-- [FastAPI](https://fastapi.tiangolo.com/) - Modern Python web framework
-- [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS framework
-
-## 📚 Documentation
-
-- [Full Documentation](docs/README.md)
-- [Conda Setup Guide](CONDA_GUIDE.md)
-- [Project Structure](PROJECT_STRUCTURE.md)
-- [API Documentation](http://localhost:8000/docs) (when running)
-
-## 🔒 Security & Use Cases
-
-This tool is designed for:
-
-- 🏢 **Enterprise Security** - Pre-deployment model testing
-- 🔬 **Research** - AI safety and security research
-- 📋 **Compliance** - Documentation for regulatory requirements
-- 🛡️ **Red Teaming** - Vulnerability assessment
-- 📊 **Model Comparison** - Security benchmark different models
-
-### Example: North Wales Police Use Case
-
-Developed to support security testing of LLMs in law enforcement contexts, ensuring models are resilient against:
-- Jailbreak attempts
-- Prompt injection attacks
-- Information leakage
-- Malicious content generation
 
 ## 🗺️ Roadmap
 
 - [ ] Docker containerization
-- [ ] Multi-user support with authentication
-- [ ] Advanced result visualization (charts/graphs)
 - [ ] Scheduled scans
 - [ ] Email/webhook notifications
 - [ ] Export to PDF/CSV
-- [ ] API key management for cloud LLMs
-- [ ] Model comparison dashboard
 - [ ] CI/CD integration examples
 
-## 💬 Support
 
-- **Issues**: [GitHub Issues](https://github.com/dwain-barnes/garak-gui-ollama/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/dwain-barnes/garak-gui-ollama/discussions)
-- **Garak Documentation**: [garak.ai](https://garak.ai/)
-
-## 📈 Statistics
-
-- **Lines of Code**: ~2,000
-- **Dependencies**: 7 (backend) + CDN (frontend)
-- **Platforms**: Windows, Linux, macOS
-- **Python Version**: 3.10+
-
----
-
-**Made with ❤️ for AI Safety**
-
-If you find this useful, please ⭐ the repository!
